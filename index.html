@@ -1,823 +1,554 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Soundboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
-  <style>
-    /* ── Tokens ──────────────────────────────────────────────── */
-    :root {
-      --white:   #ffffff;
-      --cream:   #fffdf5;
-      --yellow:  #f5e97a;
-      --yellow2: #ede06a;
-      --mist:    #faf8ee;
-      --border:  rgba(245, 233, 122, 0.45);
-      --shadow:  rgba(200, 180, 60, 0.13);
-      --glass:   rgba(255, 255, 255, 0.62);
-      --glass2:  rgba(255, 253, 245, 0.55);
-      --text:    #1a1a18;
-      --sub:     #6b6a5e;
-      --radius-pill: 999px;
-      --radius-card: 28px;
-      --radius-sm:   14px;
-      --blur: 18px;
-      --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>🍍 Pineapple Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #0e0e10;
+  --surface: #18181c;
+  --surface2:#222228;
+  --lime:    #caff4d;
+  --lime2:   #b0e832;
+  --text:    #f0f0ee;
+  --sub:     #8a8a90;
+  --border:  rgba(202,255,77,0.12);
+  --radius:  12px;
+  --pill:    999px;
+  --font:    'Space Grotesk', system-ui, sans-serif;
+  --mono:    'Space Mono', monospace;
+  --t: 0.18s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 
-    /* ── Reset ───────────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;
+  background:rgba(14,14,16,0.88);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.brand{font-family:var(--mono);font-weight:700;font-size:1rem;color:var(--lime);letter-spacing:-0.02em;white-space:nowrap;}
+.search-wrap{flex:1;position:relative;max-width:520px;}
+.search-wrap input{
+  width:100%;padding:9px 40px 9px 16px;
+  background:var(--surface);border:1.5px solid var(--border);border-radius:var(--pill);
+  color:var(--text);font-family:var(--font);font-size:0.88rem;outline:none;
+  transition:border-color var(--t),box-shadow var(--t);
+}
+.search-wrap input:focus{border-color:var(--lime);box-shadow:0 0 0 3px rgba(202,255,77,0.12);}
+.search-wrap input::placeholder{color:var(--sub);}
+.search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);pointer-events:none;font-size:14px;}
+.nav-tabs{display:flex;gap:4px;margin-left:auto;}
+.tab-btn{
+  padding:7px 16px;border-radius:var(--pill);border:none;
+  font-family:var(--font);font-size:0.82rem;font-weight:600;cursor:pointer;
+  background:transparent;color:var(--sub);transition:all var(--t);
+}
+.tab-btn.active,.tab-btn:hover{background:var(--surface2);color:var(--text);}
+.tab-btn.active{color:var(--lime);}
 
-    body {
-      font-family: 'DM Sans', system-ui, sans-serif;
-      background: var(--cream);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+/* MAIN */
+main{max-width:1100px;margin:0 auto;padding:28px 20px 80px;}
 
-    /* ── Ambient background blobs ────────────────────────────── */
-    .bg {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-    }
-    .bg-blob {
-      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.38;
-    }
-    .bg-blob-1 {
-      width: 520px; height: 520px;
-      background: radial-gradient(circle, #f5e97a 0%, #fdf6c3 60%, transparent 100%);
-      top: -120px; right: -80px;
-    }
-    .bg-blob-2 {
-      width: 400px; height: 400px;
-      background: radial-gradient(circle, #fff9c4 0%, #fdf6c3 50%, transparent 100%);
-      bottom: -80px; left: -60px;
-    }
-    .bg-blob-3 {
-      width: 260px; height: 260px;
-      background: radial-gradient(circle, #f5e97a 0%, transparent 100%);
-      top: 40%; left: 55%; opacity: 0.18;
-    }
+/* PAGE HEADER */
+.page-header{margin-bottom:24px;}
+.page-header h1{font-size:1.5rem;font-weight:700;letter-spacing:-0.02em;color:var(--text);}
+.page-header p{color:var(--sub);font-size:0.85rem;margin-top:4px;}
 
-    /* ── Layout ──────────────────────────────────────────────── */
-    .page {
-      position: relative; z-index: 1;
-      max-width: 960px; margin: 0 auto;
-      padding: 40px 24px 80px;
-    }
+/* SOUND GRID */
+.sound-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:10px;
+}
+.sound-btn{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:8px;padding:18px 12px 14px;
+  background:var(--surface);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:all var(--t);
+  text-align:center;min-height:100px;
+  overflow:hidden;
+  user-select:none;
+}
+.sound-btn:hover{border-color:var(--lime);background:var(--surface2);transform:translateY(-2px);box-shadow:0 4px 20px rgba(202,255,77,0.1);}
+.sound-btn.playing{border-color:var(--lime);background:var(--surface2);box-shadow:0 0 0 2px var(--lime);}
+.sound-btn.playing .btn-dot{background:var(--lime);animation:pulse 1s infinite;}
+.btn-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--sub);flex-shrink:0;
+  transition:background var(--t);
+}
+.btn-label{
+  font-size:0.78rem;font-weight:600;line-height:1.3;
+  color:var(--text);word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+.btn-play-icon{
+  position:absolute;bottom:8px;right:10px;
+  font-size:10px;color:var(--sub);
+  transition:color var(--t);
+}
+.sound-btn:hover .btn-play-icon,.sound-btn.playing .btn-play-icon{color:var(--lime);}
+.wave-wrap{display:flex;align-items:center;gap:2px;height:18px;}
+.wave-bar{
+  width:3px;border-radius:2px;background:var(--sub);
+  transition:background var(--t);
+}
+.sound-btn.playing .wave-bar{background:var(--lime);animation:wave 0.8s ease-in-out infinite;}
+.wave-bar:nth-child(2){animation-delay:0.1s;}
+.wave-bar:nth-child(3){animation-delay:0.2s;}
+.wave-bar:nth-child(4){animation-delay:0.15s;}
+.wave-bar:nth-child(5){animation-delay:0.05s;}
+@keyframes wave{0%,100%{height:4px;}50%{height:16px;}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
 
-    /* ── Top nav pill ────────────────────────────────────────── */
-    .nav {
-      display: flex; align-items: center; justify-content: space-between;
-      background: var(--glass);
-      backdrop-filter: blur(var(--blur));
-      -webkit-backdrop-filter: blur(var(--blur));
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 10px 20px 10px 16px;
-      margin-bottom: 48px;
-      box-shadow: 0 4px 24px var(--shadow);
-    }
-    .nav-brand {
-      display: flex; align-items: center; gap: 10px;
-      font-weight: 600; font-size: 1rem; letter-spacing: -0.01em;
-    }
-    .nav-icon {
-      width: 32px; height: 32px; border-radius: 10px;
-      background: var(--yellow);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-      box-shadow: 0 2px 8px rgba(200,180,60,0.22);
-    }
-    .nav-pill-btn {
-      background: var(--yellow);
-      border: none; border-radius: var(--radius-pill);
-      padding: 7px 18px; font-size: 0.82rem; font-weight: 600;
-      color: #3a3600; cursor: pointer;
-      transition: background var(--transition), transform var(--transition);
-      font-family: inherit;
-    }
-    .nav-pill-btn:hover { background: var(--yellow2); transform: scale(1.03); }
+/* LOADING / EMPTY */
+.loading-wrap{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:80px 20px;gap:16px;color:var(--sub);
+}
+.spinner{
+  width:32px;height:32px;border:3px solid var(--surface2);
+  border-top-color:var(--lime);border-radius:50%;
+  animation:spin 0.7s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-msg{font-size:1rem;font-weight:500;color:var(--sub);}
+.empty-sub{font-size:0.82rem;color:var(--sub);opacity:0.6;margin-top:4px;text-align:center;}
 
-    /* ── Hero ────────────────────────────────────────────────── */
-    .hero { text-align: center; margin-bottom: 48px; }
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 300; letter-spacing: -0.03em; line-height: 1.12;
-      color: var(--text);
-    }
-    .hero h1 em { font-style: italic; font-weight: 300; }
-    .hero p {
-      margin-top: 12px; color: var(--sub); font-size: 0.95rem;
-      font-weight: 400; max-width: 400px; margin-inline: auto;
-      line-height: 1.6;
-    }
+/* LOAD MORE */
+.load-more-wrap{display:flex;justify-content:center;margin-top:28px;}
+.load-more-btn{
+  padding:11px 32px;border-radius:var(--pill);
+  background:var(--surface);border:1.5px solid var(--border);
+  color:var(--text);font-family:var(--font);font-size:0.86rem;font-weight:600;
+  cursor:pointer;transition:all var(--t);
+}
+.load-more-btn:hover{border-color:var(--lime);color:var(--lime);background:var(--surface2);}
+.load-more-btn:disabled{opacity:0.4;pointer-events:none;}
 
-    /* ── Setup card (collapsible) ────────────────────────────── */
-    .setup-card {
-      background: var(--glass2);
-      backdrop-filter: blur(var(--blur));
-      -webkit-backdrop-filter: blur(var(--blur));
-      border: 1px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 24px 28px;
-      margin-bottom: 32px;
-      box-shadow: 0 4px 28px var(--shadow);
-    }
-    .setup-header {
-      display: flex; align-items: center; justify-content: space-between;
-      cursor: pointer; user-select: none;
-    }
-    .setup-title {
-      font-size: 0.88rem; font-weight: 600; letter-spacing: 0.01em;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .setup-badge {
-      background: var(--yellow); border-radius: var(--radius-pill);
-      padding: 2px 10px; font-size: 0.75rem; font-weight: 600; color: #3a3600;
-    }
-    .setup-body { margin-top: 20px; display: flex; flex-direction: column; gap: 14px; }
-    .setup-body.hidden { display: none; }
+/* NOW PLAYING BAR */
+#now-playing{
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(18,18,20,0.96);backdrop-filter:blur(16px);
+  border-top:1px solid var(--border);
+  padding:10px 20px;
+  display:flex;align-items:center;gap:14px;
+  transform:translateY(100%);transition:transform var(--t);
+  z-index:200;
+}
+#now-playing.visible{transform:translateY(0);}
+.np-dot{width:10px;height:10px;border-radius:50%;background:var(--lime);animation:pulse 1s infinite;flex-shrink:0;}
+.np-label{font-size:0.82rem;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.np-stop{
+  padding:6px 16px;border-radius:var(--pill);
+  background:rgba(202,255,77,0.1);border:1px solid rgba(202,255,77,0.3);
+  color:var(--lime);font-family:var(--font);font-size:0.78rem;font-weight:600;
+  cursor:pointer;transition:all var(--t);flex-shrink:0;
+}
+.np-stop:hover{background:rgba(202,255,77,0.2);}
 
-    .field-label {
-      font-size: 0.78rem; font-weight: 600; color: var(--sub);
-      margin-bottom: 5px; display: block;
-    }
-    .field-hint {
-      font-size: 0.73rem; color: var(--sub); margin-top: 4px; line-height: 1.5;
-    }
-    .field-hint a { color: #7a6e00; }
+/* FAVORITES header toggle */
+.fav-section-title{
+  font-size:0.78rem;font-weight:700;color:var(--sub);
+  letter-spacing:0.08em;margin-bottom:14px;margin-top:28px;
+  display:flex;align-items:center;gap:8px;
+}
+.fav-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
 
-    .pill-input {
-      width: 100%;
-      background: rgba(255,255,255,0.7);
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 10px 18px;
-      font-size: 0.88rem; font-family: inherit; color: var(--text);
-      outline: none;
-      transition: border-color var(--transition), box-shadow var(--transition);
-    }
-    .pill-input:focus {
-      border-color: var(--yellow2);
-      box-shadow: 0 0 0 3px rgba(245,233,122,0.3);
-    }
+/* Toast */
+.toast-area{position:fixed;top:70px;right:16px;z-index:1000;display:flex;flex-direction:column;gap:8px;}
+.toast{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:10px 18px;
+  font-size:0.82rem;font-weight:500;color:var(--text);
+  animation:toastIn 0.22s ease;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:none;}}
 
-    .setup-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-    .btn {
-      border: none; border-radius: var(--radius-pill);
-      padding: 10px 22px; font-size: 0.86rem; font-weight: 600;
-      cursor: pointer; font-family: inherit;
-      transition: all var(--transition);
-    }
-    .btn-primary {
-      background: var(--yellow);
-      color: #3a3600;
-      box-shadow: 0 2px 12px rgba(200,180,60,0.2);
-    }
-    .btn-primary:hover { background: var(--yellow2); transform: translateY(-1px); box-shadow: 0 4px 18px rgba(200,180,60,0.3); }
-    .btn-ghost {
-      background: rgba(255,255,255,0.5);
-      color: var(--sub);
-      border: 1.5px solid var(--border);
-    }
-    .btn-ghost:hover { background: rgba(255,255,255,0.8); color: var(--text); }
-    .btn:disabled { opacity: 0.45; pointer-events: none; }
-
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      border-radius: var(--radius-pill);
-      padding: 6px 14px; font-size: 0.8rem; font-weight: 500;
-      margin-top: 10px;
-    }
-    .status-pill.ok  { background: rgba(120,200,100,0.18); color: #2a6a1a; border: 1px solid rgba(120,200,100,0.3); }
-    .status-pill.err { background: rgba(220,80,80,0.12);  color: #7a1a1a; border: 1px solid rgba(220,80,80,0.25); }
-    .status-pill.inf { background: rgba(200,180,60,0.15); color: #5a4e00; border: 1px solid rgba(200,180,60,0.3); }
-    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-
-    /* ── Upload zone ─────────────────────────────────────────── */
-    .upload-zone {
-      border: 2px dashed var(--border);
-      border-radius: var(--radius-card);
-      padding: 40px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: all var(--transition);
-      background: rgba(255,253,245,0.5);
-      position: relative;
-    }
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--yellow2);
-      background: rgba(245,233,122,0.1);
-      box-shadow: 0 0 0 4px rgba(245,233,122,0.15);
-    }
-    .upload-zone input[type="file"] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .upload-icon { font-size: 2.2rem; margin-bottom: 12px; }
-    .upload-label { font-size: 0.95rem; font-weight: 500; color: var(--text); }
-    .upload-sub   { font-size: 0.8rem; color: var(--sub); margin-top: 5px; }
-
-    /* ── Upload queue ────────────────────────────────────────── */
-    .queue { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
-    .queue-item {
-      display: flex; align-items: center; gap: 14px;
-      background: var(--glass);
-      backdrop-filter: blur(var(--blur));
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-    }
-    .queue-name { flex: 1; font-size: 0.86rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .queue-size { font-size: 0.76rem; color: var(--sub); white-space: nowrap; }
-    .queue-status { font-size: 1.1rem; flex-shrink: 0; }
-
-    .progress-bar-wrap {
-      height: 4px; background: rgba(200,180,60,0.15); border-radius: 99px;
-      margin-top: 6px; overflow: hidden; width: 100%;
-    }
-    .progress-bar {
-      height: 100%; background: var(--yellow2); border-radius: 99px;
-      width: 0%; transition: width 0.3s ease;
-    }
-
-    /* ── Soundboard grid ─────────────────────────────────────── */
-    .section-label {
-      font-size: 0.8rem; font-weight: 600; color: var(--sub);
-      margin-bottom: 16px; letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 14px;
-    }
-
-    .sound-card {
-      background: var(--glass);
-      backdrop-filter: blur(var(--blur));
-      -webkit-backdrop-filter: blur(var(--blur));
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-card);
-      padding: 22px 16px 18px;
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      cursor: pointer; user-select: none;
-      box-shadow: 0 2px 16px var(--shadow);
-      transition: all var(--transition);
-      position: relative; overflow: hidden;
-    }
-    .sound-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 50%;
-      background: linear-gradient(to bottom, rgba(255,255,255,0.35), transparent);
-      pointer-events: none; border-radius: inherit;
-    }
-    .sound-card:hover {
-      transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 8px 32px var(--shadow);
-      border-color: var(--yellow2);
-    }
-    .sound-card.playing {
-      background: rgba(245,233,122,0.35);
-      border-color: var(--yellow2);
-      box-shadow: 0 0 0 3px rgba(245,233,122,0.3), 0 8px 32px var(--shadow);
-    }
-    .sound-card.playing .card-play { background: var(--yellow); }
-
-    .card-emoji { font-size: 1.6rem; }
-    .card-name {
-      font-size: 0.82rem; font-weight: 500; text-align: center;
-      word-break: break-word; line-height: 1.35; color: var(--text);
-      max-width: 100%;
-    }
-    .card-play {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255,255,255,0.8);
-      border: 1.5px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; color: var(--text);
-      transition: all var(--transition);
-      flex-shrink: 0;
-    }
-    .sound-card:hover .card-play {
-      background: var(--yellow);
-      border-color: var(--yellow2);
-    }
-
-    /* wave animation */
-    .wave-bars {
-      display: none; align-items: flex-end; gap: 2px; height: 18px;
-    }
-    .sound-card.playing .wave-bars { display: flex; }
-    .sound-card.playing .card-emoji { display: none; }
-    .wave-bar {
-      width: 3px; border-radius: 2px; background: var(--yellow2);
-      animation: wave 0.9s ease-in-out infinite;
-    }
-    .wave-bar:nth-child(1) { animation-delay: 0s;    height: 8px; }
-    .wave-bar:nth-child(2) { animation-delay: 0.15s; height: 14px; }
-    .wave-bar:nth-child(3) { animation-delay: 0.3s;  height: 10px; }
-    .wave-bar:nth-child(4) { animation-delay: 0.45s; height: 16px; }
-    .wave-bar:nth-child(5) { animation-delay: 0.6s;  height: 7px; }
-    @keyframes wave {
-      0%, 100% { transform: scaleY(1); }
-      50%       { transform: scaleY(0.4); }
-    }
-
-    .sound-card .card-delete {
-      position: absolute; top: 8px; right: 8px;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(255,255,255,0.7);
-      border: 1px solid rgba(200,180,60,0.2);
-      font-size: 10px; color: var(--sub);
-      display: none; align-items: center; justify-content: center;
-      cursor: pointer; z-index: 2;
-      transition: all var(--transition);
-    }
-    .sound-card:hover .card-delete { display: flex; }
-    .sound-card .card-delete:hover { background: #fee; color: #c00; border-color: #fcc; }
-
-    /* ── Empty state ─────────────────────────────────────────── */
-    .empty {
-      text-align: center; padding: 48px 24px;
-      color: var(--sub); font-size: 0.9rem;
-    }
-    .empty-icon { font-size: 2.5rem; margin-bottom: 14px; }
-
-    /* ── Toast ───────────────────────────────────────────────── */
-    .toast-wrap {
-      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 8px;
-      z-index: 100; pointer-events: none;
-    }
-    .toast {
-      background: var(--glass);
-      backdrop-filter: blur(var(--blur));
-      border: 1px solid var(--border);
-      border-radius: var(--radius-pill);
-      padding: 10px 20px;
-      font-size: 0.85rem; font-weight: 500;
-      box-shadow: 0 4px 24px var(--shadow);
-      animation: toast-in 0.25s ease, toast-out 0.3s ease 2.5s forwards;
-    }
-    @keyframes toast-in  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes toast-out { from { opacity: 1; } to { opacity: 0; } }
-
-    /* ── Responsive ──────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      .nav { padding: 8px 14px; }
-      .page { padding: 24px 16px 60px; }
-      .grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
-      .setup-card { padding: 18px 18px; }
-    }
-
-    /* ── Rotate chevron ──────────────────────────────────────── */
-    .chevron { transition: transform var(--transition); display: inline-block; }
-    .chevron.open { transform: rotate(180deg); }
-  </style>
+/* Responsive */
+@media(max-width:640px){
+  .sound-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;}
+  .nav-tabs{display:none;}
+  .mobile-tabs{display:flex;gap:6px;margin-bottom:20px;}
+}
+@media(min-width:641px){.mobile-tabs{display:none;}}
+.mobile-tabs .tab-btn{flex:1;text-align:center;}
+</style>
 </head>
 <body>
 
-<div class="bg">
-  <div class="bg-blob bg-blob-1"></div>
-  <div class="bg-blob bg-blob-2"></div>
-  <div class="bg-blob bg-blob-3"></div>
+<nav>
+  <span class="brand">🍍 pineapple board</span>
+  <div class="search-wrap">
+    <input id="searchInput" type="search" placeholder="Search myinstants…" autocomplete="off"/>
+    <span class="search-icon">⌕</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-tab="trending">Trending</button>
+    <button class="tab-btn" data-tab="search">Search</button>
+    <button class="tab-btn" data-tab="favorites">Favorites ♥</button>
+  </div>
+</nav>
+
+<main>
+  <!-- Mobile tabs -->
+  <div class="mobile-tabs">
+    <button class="tab-btn active" data-tab="trending">Trending</button>
+    <button class="tab-btn" data-tab="search">Search</button>
+    <button class="tab-btn" data-tab="favorites">♥</button>
+  </div>
+
+  <div id="trending-page">
+    <div class="page-header">
+      <h1>Trending in US 🔥</h1>
+      <p>Top sounds right now — pulled live from myinstants.com</p>
+    </div>
+    <div id="trending-grid" class="sound-grid"></div>
+    <div id="trending-loading" class="loading-wrap"><div class="spinner"></div></div>
+    <div class="load-more-wrap" id="trending-more-wrap" style="display:none">
+      <button class="load-more-btn" id="trending-more-btn">Load more</button>
+    </div>
+  </div>
+
+  <div id="search-page" style="display:none">
+    <div class="page-header">
+      <h1 id="search-title">Search results</h1>
+      <p id="search-sub">Type something above to search</p>
+    </div>
+    <div id="search-grid" class="sound-grid"></div>
+    <div id="search-loading" class="loading-wrap" style="display:none"><div class="spinner"></div></div>
+    <div class="load-more-wrap" id="search-more-wrap" style="display:none">
+      <button class="load-more-btn" id="search-more-btn">Load more</button>
+    </div>
+  </div>
+
+  <div id="favorites-page" style="display:none">
+    <div class="page-header">
+      <h1>Favorites ♥</h1>
+      <p>Sounds you've saved — stored locally in your browser</p>
+    </div>
+    <div id="favorites-grid" class="sound-grid"></div>
+    <div id="favorites-empty" class="loading-wrap" style="display:none">
+      <span class="empty-msg">No favorites yet</span>
+      <span class="empty-sub">Tap ♥ on any sound to save it here</span>
+    </div>
+  </div>
+</main>
+
+<div id="now-playing">
+  <div class="np-dot"></div>
+  <div class="np-label" id="np-label">—</div>
+  <button class="np-stop" id="np-stop">■ Stop</button>
 </div>
 
-<div class="page">
-
-  <!-- Nav -->
-  <nav class="nav">
-    <div class="nav-brand">
-      <div class="nav-icon">🎵</div>
-      Soundboard
-    </div>
-    <button class="nav-pill-btn" id="settingsToggleNav">⚙ Settings</button>
-  </nav>
-
-  <!-- Hero -->
-  <header class="hero">
-    <h1>Your sounds,<br><em>always one tap away.</em></h1>
-    <p>Upload audio files. They live in your GitHub repo and play instantly from any device.</p>
-  </header>
-
-  <!-- Setup card -->
-  <div class="setup-card" id="setupCard">
-    <div class="setup-header" id="setupHeader">
-      <div class="setup-title">
-        GitHub Setup
-        <span class="setup-badge" id="setupBadge">Not connected</span>
-      </div>
-      <span class="chevron" id="setupChevron">▼</span>
-    </div>
-    <div class="setup-body" id="setupBody">
-
-      <div>
-        <label class="field-label" for="inputUser">GitHub username</label>
-        <input class="pill-input" id="inputUser" type="text" placeholder="e.g. yourname" autocomplete="off" />
-      </div>
-
-      <div>
-        <label class="field-label" for="inputRepo">Repository name</label>
-        <input class="pill-input" id="inputRepo" type="text" placeholder="e.g. my-soundboard" autocomplete="off" />
-        <p class="field-hint">Create an empty public repo on GitHub first. Files will go into the <code>/audios/</code> folder. Your site will be at <code>yourname.github.io/my-soundboard</code> once GitHub Pages is enabled (Settings → Pages → Deploy from branch <code>main</code>).</p>
-      </div>
-
-      <div>
-        <label class="field-label" for="inputToken">Personal Access Token</label>
-        <input class="pill-input" id="inputToken" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
-        <p class="field-hint">
-          Needs <code>Contents: Read &amp; Write</code> scope. Create one at
-          <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a>.
-          Stored only in your browser's localStorage — never sent anywhere except GitHub.
-        </p>
-      </div>
-
-      <div>
-        <label class="field-label" for="inputBranch">Branch (default: main)</label>
-        <input class="pill-input" id="inputBranch" type="text" placeholder="main" autocomplete="off" />
-      </div>
-
-      <div class="setup-actions">
-        <button class="btn btn-primary" id="saveSettingsBtn">Save &amp; connect</button>
-        <button class="btn btn-ghost"   id="testConnectionBtn">Test connection</button>
-      </div>
-
-      <div id="connStatus"></div>
-    </div>
-  </div>
-
-  <!-- Upload zone -->
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept="audio/*" multiple />
-    <div class="upload-icon">🎙</div>
-    <div class="upload-label">Drop audio files here, or click to browse</div>
-    <div class="upload-sub">MP3, WAV, OGG, FLAC, M4A — any audio</div>
-  </div>
-
-  <div class="queue" id="uploadQueue"></div>
-
-  <!-- Soundboard -->
-  <div style="margin-top: 40px;">
-    <div class="section-label">Sounds</div>
-    <div class="grid" id="soundGrid"></div>
-    <div class="empty" id="emptyState">
-      <div class="empty-icon">🎧</div>
-      <p>No sounds yet. Upload some audio to get started.</p>
-    </div>
-  </div>
-
-</div>
-
-<div class="toast-wrap" id="toastWrap"></div>
+<div class="toast-area" id="toastArea"></div>
 
 <script>
-/* ── State ─────────────────────────────────────────────────── */
-let cfg = { user: '', repo: '', token: '', branch: 'main' };
-let sounds = []; // { name, url, sha? }
+// ─── State ─────────────────────────────────────────────────────────
+const PROXY = 'https://api.allorigins.win/get?url=';
 let currentAudio = null;
-let currentCard  = null;
+let currentBtn = null;
+let currentTab = 'trending';
+let favorites = JSON.parse(localStorage.getItem('pb_favs') || '[]');
 
-const STORAGE_CFG    = 'sb_cfg_v1';
-const STORAGE_SOUNDS = 'sb_sounds_v1';
+// Page state
+let trendingPage = 1, trendingLoading = false, trendingDone = false;
+let searchPage = 1, searchLoading = false, searchDone = false;
+let currentQuery = '';
 
-const EMOJIS = ['🎵','🎶','🔊','🎸','🎹','🥁','🎺','🎻','🪗','🎤','🔔','✨'];
-function pickEmoji(name) {
-  let h = 0;
-  for (const c of name) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
-  return EMOJIS[h % EMOJIS.length];
+// ─── DOM refs ───────────────────────────────────────────────────────
+const trendingGrid = document.getElementById('trending-grid');
+const searchGrid   = document.getElementById('search-grid');
+const favGrid      = document.getElementById('favorites-grid');
+const npBar        = document.getElementById('now-playing');
+const npLabel      = document.getElementById('np-label');
+const searchInput  = document.getElementById('searchInput');
+
+// ─── Tab switching ──────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('trending-page').style.display  = tab === 'trending'  ? '' : 'none';
+  document.getElementById('search-page').style.display    = tab === 'search'    ? '' : 'none';
+  document.getElementById('favorites-page').style.display = tab === 'favorites' ? '' : 'none';
+  if (tab === 'favorites') renderFavorites();
 }
-function fmtBytes(b) {
-  if (b < 1024) return b + ' B';
-  if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
-  return (b/1048576).toFixed(1) + ' MB';
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => switchTab(b.dataset.tab)));
+
+// ─── Fetch myinstants page via allorigins proxy ─────────────────────
+async function fetchInstantsPage(url) {
+  const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+  const res = await fetch(proxyUrl);
+  const data = await res.json();
+  return data.contents; // HTML string
 }
 
-/* ── Persist ───────────────────────────────────────────────── */
-function loadState() {
-  try { const s = localStorage.getItem(STORAGE_CFG);    if (s) cfg    = { ...cfg, ...JSON.parse(s) }; } catch(e){}
-  try { const s = localStorage.getItem(STORAGE_SOUNDS); if (s) sounds = JSON.parse(s); } catch(e){}
+// ─── Parse sounds from myinstants HTML ─────────────────────────────
+function parseSounds(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const sounds = [];
+  doc.querySelectorAll('.instant').forEach(el => {
+    const btn = el.querySelector('button.small-button');
+    const link = el.querySelector('a.instant-link');
+    if (!btn || !link) return;
+    const onclick = btn.getAttribute('onclick') || '';
+    const m = onclick.match(/play\('([^']+)'/);
+    if (!m) return;
+    const audioPath = m[1];
+    const audioUrl = 'https://www.myinstants.com' + audioPath;
+    const name = link.textContent.trim();
+    sounds.push({ name, url: audioUrl });
+  });
+  return sounds;
 }
-function saveCfg()    { try { localStorage.setItem(STORAGE_CFG,    JSON.stringify(cfg));    } catch(e){} }
-function saveSounds() { try { localStorage.setItem(STORAGE_SOUNDS, JSON.stringify(sounds)); } catch(e){} }
 
-/* ── DOM refs ──────────────────────────────────────────────── */
-const inputUser   = document.getElementById('inputUser');
-const inputRepo   = document.getElementById('inputRepo');
-const inputToken  = document.getElementById('inputToken');
-const inputBranch = document.getElementById('inputBranch');
-const setupBody   = document.getElementById('setupBody');
-const setupBadge  = document.getElementById('setupBadge');
-const setupChevron= document.getElementById('setupChevron');
-const connStatus  = document.getElementById('connStatus');
-const soundGrid   = document.getElementById('soundGrid');
-const emptyState  = document.getElementById('emptyState');
-const uploadQueue = document.getElementById('uploadQueue');
-const uploadZone  = document.getElementById('uploadZone');
-const fileInput   = document.getElementById('fileInput');
-const toastWrap   = document.getElementById('toastWrap');
+// ─── Build a sound button ───────────────────────────────────────────
+function makeSoundBtn(sound) {
+  const isFav = favorites.some(f => f.url === sound.url);
 
-/* ── Toast ─────────────────────────────────────────────────── */
+  const btn = document.createElement('div');
+  btn.className = 'sound-btn';
+  btn.title = sound.name;
+
+  const wave = document.createElement('div');
+  wave.className = 'wave-wrap';
+  [4,10,16,10,6].forEach(h => {
+    const b = document.createElement('div');
+    b.className = 'wave-bar';
+    b.style.height = h + 'px';
+    wave.appendChild(b);
+  });
+
+  const label = document.createElement('div');
+  label.className = 'btn-label';
+  label.textContent = sound.name;
+
+  const playIcon = document.createElement('div');
+  playIcon.className = 'btn-play-icon';
+  playIcon.textContent = '▶';
+
+  const favBtn = document.createElement('button');
+  favBtn.style.cssText = `position:absolute;top:6px;right:8px;background:none;border:none;cursor:pointer;font-size:12px;color:${isFav?'#ff6b8a':'var(--sub)'};padding:2px;line-height:1;transition:color 0.15s;`;
+  favBtn.textContent = isFav ? '♥' : '♡';
+  favBtn.title = isFav ? 'Remove from favorites' : 'Add to favorites';
+  favBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFav(sound, favBtn);
+  });
+
+  btn.appendChild(wave);
+  btn.appendChild(label);
+  btn.appendChild(playIcon);
+  btn.appendChild(favBtn);
+
+  btn.addEventListener('click', () => playSound(sound, btn, playIcon));
+  return btn;
+}
+
+// ─── Play audio ─────────────────────────────────────────────────────
+function playSound(sound, btn, iconEl) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+    if (currentBtn) {
+      currentBtn.classList.remove('playing');
+      const ic = currentBtn.querySelector('.btn-play-icon');
+      if (ic) ic.textContent = '▶';
+    }
+    if (currentBtn === btn) { currentBtn = null; npBar.classList.remove('visible'); return; }
+  }
+
+  const audio = new Audio(sound.url);
+  currentAudio = audio;
+  currentBtn = btn;
+  btn.classList.add('playing');
+  if (iconEl) iconEl.textContent = '■';
+
+  npLabel.textContent = sound.name;
+  npBar.classList.add('visible');
+
+  audio.play().catch(() => toast('Could not load audio'));
+  audio.addEventListener('ended', () => {
+    btn.classList.remove('playing');
+    if (iconEl) iconEl.textContent = '▶';
+    currentAudio = null; currentBtn = null;
+    npBar.classList.remove('visible');
+  });
+}
+
+document.getElementById('np-stop').addEventListener('click', () => {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if (currentBtn) { currentBtn.classList.remove('playing'); const ic = currentBtn.querySelector('.btn-play-icon'); if(ic) ic.textContent='▶'; currentBtn = null; }
+  npBar.classList.remove('visible');
+});
+
+// ─── Favorites ──────────────────────────────────────────────────────
+function toggleFav(sound, btn) {
+  const idx = favorites.findIndex(f => f.url === sound.url);
+  if (idx >= 0) {
+    favorites.splice(idx, 1);
+    btn.textContent = '♡'; btn.style.color = 'var(--sub)';
+    btn.title = 'Add to favorites';
+    toast('Removed from favorites');
+  } else {
+    favorites.push(sound);
+    btn.textContent = '♥'; btn.style.color = '#ff6b8a';
+    btn.title = 'Remove from favorites';
+    toast('Added to favorites ♥');
+  }
+  localStorage.setItem('pb_favs', JSON.stringify(favorites));
+  // refresh fav page if visible
+  if (currentTab === 'favorites') renderFavorites();
+}
+
+function renderFavorites() {
+  favGrid.innerHTML = '';
+  const empty = document.getElementById('favorites-empty');
+  if (!favorites.length) { empty.style.display = 'flex'; return; }
+  empty.style.display = 'none';
+  favorites.forEach(s => favGrid.appendChild(makeSoundBtn(s)));
+}
+
+// ─── Trending ────────────────────────────────────────────────────────
+async function loadTrending() {
+  if (trendingLoading || trendingDone) return;
+  trendingLoading = true;
+
+  const loadingEl = document.getElementById('trending-loading');
+  const moreWrap = document.getElementById('trending-more-wrap');
+  const moreBtn = document.getElementById('trending-more-btn');
+
+  loadingEl.style.display = 'flex';
+  moreWrap.style.display = 'none';
+  moreBtn.disabled = true;
+
+  try {
+    const url = `https://www.myinstants.com/en/index/us/?page=${trendingPage}`;
+    const html = await fetchInstantsPage(url);
+    const sounds = parseSounds(html);
+
+    loadingEl.style.display = 'none';
+
+    if (!sounds.length) {
+      trendingDone = true;
+      if (trendingPage === 1) {
+        trendingGrid.innerHTML = '<div class="loading-wrap"><span class="empty-msg">Could not load sounds</span><span class="empty-sub">Check your connection or try refreshing</span></div>';
+      }
+      return;
+    }
+
+    sounds.forEach(s => trendingGrid.appendChild(makeSoundBtn(s)));
+    trendingPage++;
+    moreWrap.style.display = 'flex';
+    moreBtn.disabled = false;
+  } catch(e) {
+    loadingEl.style.display = 'none';
+    if (trendingPage === 1) {
+      trendingGrid.innerHTML = `<div class="loading-wrap"><span class="empty-msg">Failed to load</span><span class="empty-sub">${e.message}</span></div>`;
+    }
+  }
+  trendingLoading = false;
+}
+
+document.getElementById('trending-more-btn').addEventListener('click', loadTrending);
+
+// ─── Search ──────────────────────────────────────────────────────────
+async function doSearch(query, reset = true) {
+  if (!query || query.length < 2) return;
+  if (reset) {
+    searchPage = 1;
+    searchDone = false;
+    searchGrid.innerHTML = '';
+  }
+  if (searchLoading || searchDone) return;
+  searchLoading = true;
+
+  currentQuery = query;
+  switchTab('search');
+
+  const loadingEl = document.getElementById('search-loading');
+  const moreWrap  = document.getElementById('search-more-wrap');
+  const moreBtn   = document.getElementById('search-more-btn');
+  const titleEl   = document.getElementById('search-title');
+  const subEl     = document.getElementById('search-sub');
+
+  titleEl.textContent = `Results for "${query}"`;
+  subEl.textContent   = 'Searching myinstants.com…';
+  loadingEl.style.display = 'flex';
+  moreWrap.style.display = 'none';
+
+  try {
+    const url = `https://www.myinstants.com/en/search/?name=${encodeURIComponent(query)}&page=${searchPage}`;
+    const html = await fetchInstantsPage(url);
+    const sounds = parseSounds(html);
+
+    loadingEl.style.display = 'none';
+
+    if (!sounds.length) {
+      searchDone = true;
+      if (searchPage === 1) {
+        searchGrid.innerHTML = '';
+        subEl.textContent = 'No results found — try different keywords';
+      } else {
+        subEl.textContent = `${searchGrid.children.length} results`;
+      }
+      return;
+    }
+
+    sounds.forEach(s => searchGrid.appendChild(makeSoundBtn(s)));
+    subEl.textContent = `${searchGrid.children.length} results`;
+    searchPage++;
+    moreWrap.style.display = 'flex';
+    moreBtn.disabled = false;
+  } catch(e) {
+    loadingEl.style.display = 'none';
+    subEl.textContent = 'Search failed — try again';
+  }
+  searchLoading = false;
+}
+
+document.getElementById('search-more-btn').addEventListener('click', () => doSearch(currentQuery, false));
+
+let searchDebounce;
+searchInput.addEventListener('input', () => {
+  clearTimeout(searchDebounce);
+  const q = searchInput.value.trim();
+  if (q.length < 2) return;
+  searchDebounce = setTimeout(() => doSearch(q, true), 500);
+});
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    clearTimeout(searchDebounce);
+    const q = searchInput.value.trim();
+    if (q.length >= 2) doSearch(q, true);
+  }
+});
+
+// ─── Toast ───────────────────────────────────────────────────────────
 function toast(msg) {
   const el = document.createElement('div');
   el.className = 'toast';
   el.textContent = msg;
-  toastWrap.appendChild(el);
-  setTimeout(() => el.remove(), 2900);
+  document.getElementById('toastArea').appendChild(el);
+  setTimeout(() => el.remove(), 2500);
 }
 
-/* ── Setup panel toggle ────────────────────────────────────── */
-let setupOpen = true;
-function toggleSetup(force) {
-  setupOpen = force !== undefined ? force : !setupOpen;
-  setupBody.classList.toggle('hidden', !setupOpen);
-  setupChevron.classList.toggle('open', setupOpen);
-}
-document.getElementById('setupHeader').addEventListener('click', () => toggleSetup());
-document.getElementById('settingsToggleNav').addEventListener('click', () => {
-  toggleSetup(true);
-  document.getElementById('setupCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-});
-
-/* ── Fill inputs from saved cfg ────────────────────────────── */
-function applyCfg() {
-  inputUser.value   = cfg.user   || '';
-  inputRepo.value   = cfg.repo   || '';
-  inputToken.value  = cfg.token  || '';
-  inputBranch.value = cfg.branch || 'main';
-  updateBadge();
-  if (cfg.user && cfg.repo && cfg.token) toggleSetup(false);
-}
-function updateBadge() {
-  const ok = cfg.user && cfg.repo && cfg.token;
-  setupBadge.textContent = ok ? '✓ Connected' : 'Not connected';
-  setupBadge.style.background = ok ? 'rgba(120,200,100,0.3)' : '';
-  setupBadge.style.color      = ok ? '#2a6a1a' : '';
-}
-
-/* ── Save settings ─────────────────────────────────────────── */
-document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-  cfg.user   = inputUser.value.trim();
-  cfg.repo   = inputRepo.value.trim();
-  cfg.token  = inputToken.value.trim();
-  cfg.branch = inputBranch.value.trim() || 'main';
-  if (!cfg.user || !cfg.repo || !cfg.token) {
-    toast('Please fill in username, repo, and token.');
-    return;
-  }
-  saveCfg(); updateBadge(); toggleSetup(false);
-  toast('Settings saved!');
-});
-
-/* ── Test connection ───────────────────────────────────────── */
-document.getElementById('testConnectionBtn').addEventListener('click', async () => {
-  const u = inputUser.value.trim(), r = inputRepo.value.trim(), t = inputToken.value.trim();
-  if (!u || !r || !t) { toast('Fill in all fields first.'); return; }
-  connStatus.innerHTML = '<div class="status-pill inf"><span class="dot"></span>Checking…</div>';
-  try {
-    const res = await fetch(`https://api.github.com/repos/${u}/${r}`, {
-      headers: { Authorization: `Bearer ${t}`, Accept: 'application/vnd.github+json' }
-    });
-    if (res.ok) {
-      connStatus.innerHTML = '<div class="status-pill ok"><span class="dot"></span>Connected! Repo found.</div>';
-    } else {
-      const d = await res.json();
-      connStatus.innerHTML = `<div class="status-pill err"><span class="dot"></span>${d.message || 'Error ' + res.status}</div>`;
-    }
-  } catch(e) {
-    connStatus.innerHTML = `<div class="status-pill err"><span class="dot"></span>Network error: ${e.message}</div>`;
-  }
-});
-
-/* ── Fetch existing sounds from repo ───────────────────────── */
-async function fetchRepoSounds() {
-  if (!cfg.user || !cfg.repo || !cfg.token) return;
-  try {
-    const res = await fetch(
-      `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/audios`,
-      { headers: { Authorization: `Bearer ${cfg.token}`, Accept: 'application/vnd.github+json' } }
-    );
-    if (!res.ok) return;
-    const files = await res.json();
-    const audioExts = /\.(mp3|wav|ogg|flac|m4a|aac|opus|weba|webm)$/i;
-    const newSounds = files
-      .filter(f => f.type === 'file' && audioExts.test(f.name))
-      .map(f => ({
-        name: f.name,
-        url: `https://raw.githubusercontent.com/${cfg.user}/${cfg.repo}/${cfg.branch}/audios/${f.name}`,
-        sha: f.sha
-      }));
-    // Merge without duplication
-    for (const s of newSounds) {
-      if (!sounds.find(x => x.name === s.name)) sounds.push(s);
-    }
-    saveSounds();
-    renderGrid();
-  } catch(e) {}
-}
-
-/* ── Upload to GitHub ──────────────────────────────────────── */
-async function uploadFile(file, itemEl, progressEl, statusEl) {
-  if (!cfg.user || !cfg.repo || !cfg.token) {
-    toast('Connect to GitHub first — check Settings.'); return;
-  }
-  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
-  const path     = `audios/${safeName}`;
-  const apiUrl   = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/${path}`;
-
-  statusEl.textContent = '⏳';
-
-  // Read as base64
-  const b64 = await new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = e => res(e.target.result.split(',')[1]);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-
-  progressEl.style.width = '30%';
-
-  // Check if file already exists (to get sha for update)
-  let sha;
-  try {
-    const check = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${cfg.token}`, Accept: 'application/vnd.github+json' }
-    });
-    if (check.ok) { const d = await check.json(); sha = d.sha; }
-  } catch(e) {}
-
-  progressEl.style.width = '55%';
-
-  const body = {
-    message: `Add sound: ${safeName}`,
-    content: b64,
-    branch:  cfg.branch
-  };
-  if (sha) { body.sha = sha; body.message = `Update sound: ${safeName}`; }
-
-  try {
-    const res = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${cfg.token}`,
-        Accept: 'application/vnd.github+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-    progressEl.style.width = '100%';
-
-    if (res.ok) {
-      statusEl.textContent = '✅';
-      const rawUrl = `https://raw.githubusercontent.com/${cfg.user}/${cfg.repo}/${cfg.branch}/audios/${safeName}`;
-      if (!sounds.find(s => s.name === safeName)) {
-        sounds.push({ name: safeName, url: rawUrl });
-        saveSounds(); renderGrid();
-      }
-      toast(`Uploaded: ${safeName}`);
-      setTimeout(() => itemEl.remove(), 1200);
-    } else {
-      const d = await res.json();
-      statusEl.textContent = '❌';
-      toast(`Failed: ${d.message || res.status}`);
-    }
-  } catch(e) {
-    statusEl.textContent = '❌';
-    toast(`Error: ${e.message}`);
-  }
-}
-
-/* ── Queue UI ──────────────────────────────────────────────── */
-function addToQueue(file) {
-  const item = document.createElement('div');
-  item.className = 'queue-item';
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'queue-name';
-  nameEl.textContent = file.name;
-
-  const sizeEl = document.createElement('div');
-  sizeEl.className = 'queue-size';
-  sizeEl.textContent = fmtBytes(file.size);
-
-  const statusEl = document.createElement('div');
-  statusEl.className = 'queue-status';
-  statusEl.textContent = '⏳';
-
-  const barWrap = document.createElement('div');
-  barWrap.className = 'progress-bar-wrap';
-  const bar = document.createElement('div');
-  bar.className = 'progress-bar';
-  barWrap.appendChild(bar);
-
-  const left = document.createElement('div');
-  left.style.flex = '1'; left.style.minWidth = '0';
-  left.appendChild(nameEl);
-  left.appendChild(barWrap);
-
-  item.appendChild(left);
-  item.appendChild(sizeEl);
-  item.appendChild(statusEl);
-  uploadQueue.appendChild(item);
-
-  uploadFile(file, item, bar, statusEl);
-}
-
-/* ── Drag & drop / file input ──────────────────────────────── */
-uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-uploadZone.addEventListener('drop', e => {
-  e.preventDefault(); uploadZone.classList.remove('drag-over');
-  [...e.dataTransfer.files].filter(f => f.type.startsWith('audio/')).forEach(addToQueue);
-});
-fileInput.addEventListener('change', () => {
-  [...fileInput.files].forEach(addToQueue);
-  fileInput.value = '';
-});
-
-/* ── Render soundboard grid ────────────────────────────────── */
-function renderGrid() {
-  soundGrid.innerHTML = '';
-  emptyState.style.display = sounds.length ? 'none' : 'block';
-
-  for (const sound of sounds) {
-    const card = document.createElement('div');
-    card.className = 'sound-card';
-    card.dataset.url = sound.url;
-
-    const emoji = document.createElement('div');
-    emoji.className = 'card-emoji';
-    emoji.textContent = pickEmoji(sound.name);
-
-    const waves = document.createElement('div');
-    waves.className = 'wave-bars';
-    for (let i = 0; i < 5; i++) {
-      const b = document.createElement('div'); b.className = 'wave-bar'; waves.appendChild(b);
-    }
-
-    const name = document.createElement('div');
-    name.className = 'card-name';
-    name.textContent = sound.name.replace(/\.[^.]+$/, '');
-
-    const playBtn = document.createElement('div');
-    playBtn.className = 'card-play';
-    playBtn.innerHTML = '▶';
-
-    const del = document.createElement('div');
-    del.className = 'card-delete';
-    del.title = 'Remove from board';
-    del.innerHTML = '✕';
-    del.addEventListener('click', e => {
-      e.stopPropagation();
-      sounds = sounds.filter(s => s.name !== sound.name);
-      saveSounds(); renderGrid();
-      toast('Removed from board (file stays on GitHub).');
-    });
-
-    card.appendChild(del);
-    card.appendChild(emoji);
-    card.appendChild(waves);
-    card.appendChild(name);
-    card.appendChild(playBtn);
-    card.addEventListener('click', () => playSound(sound, card, playBtn));
-
-    soundGrid.appendChild(card);
-  }
-}
-
-/* ── Play / stop audio ─────────────────────────────────────── */
-function playSound(sound, card, playBtn) {
-  // Stop existing
-  if (currentAudio) {
-    currentAudio.pause(); currentAudio = null;
-    if (currentCard) { currentCard.classList.remove('playing'); currentCard.querySelector('.card-play').innerHTML = '▶'; }
-  }
-  if (currentCard === card) { currentCard = null; return; }
-
-  const audio = new Audio(sound.url);
-  audio.crossOrigin = 'anonymous';
-  currentAudio = audio;
-  currentCard  = card;
-  card.classList.add('playing');
-  playBtn.innerHTML = '■';
-
-  audio.play().catch(e => toast('Could not play audio: ' + e.message));
-  audio.addEventListener('ended', () => {
-    card.classList.remove('playing');
-    playBtn.innerHTML = '▶';
-    currentAudio = null; currentCard = null;
-  });
-  audio.addEventListener('error', () => toast('Audio error — check the file URL on GitHub.'));
-}
-
-/* ── Init ──────────────────────────────────────────────────── */
-loadState();
-applyCfg();
-renderGrid();
-if (cfg.user && cfg.repo && cfg.token) fetchRepoSounds();
+// ─── Init ────────────────────────────────────────────────────────────
+loadTrending();
 </script>
 </body>
 </html>
